@@ -27,7 +27,7 @@ jobs:
     - id: auth
       uses: google-github-actions/auth@v2.0.0  
       with:
-        workload_identity_provider: 'projects/223122573789/locations/global/workloadIdentityPools/github-pool-lavi/providers/github-lav'
+        workload_identity_provider: 'projects/223122573789/locations/global/workloadIdentityPools/github-pool-lavi/providers/github-lavi'
         service_account: 'cicd-sa@project-b2133bd0-e0c0-4341-835.iam.gserviceaccount.com'
 
 
