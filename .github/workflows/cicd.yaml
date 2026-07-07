@@ -1,51 +1,97 @@
-name: 'Terraform'
-
+name: Build and push Docker Image to Artifact Registry 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-
-permissions:
-  contents: read
-  id-token: 'write'
-
+    branches:
+        - 'main' 
+# env:
+#   IMAGE_NAME: "python_flex"
+#   AR_REPO_LOCATION: "us-central1"
+#   AR_URL: "us-central1-docker.pkg.dev/phrasal-indexer-481012-r0/app-deploy"
+permissions:       # 👈 Add this block
+  id-token: write  # Required for OIDC authentication
+  contents: read   # Allows checkout of the repo
+  
 jobs:
-  terraform:
-    name: 'Terraform'
+  hello-job:
     runs-on: ubuntu-latest
-
-
-    defaults:
-      run:
-        shell: bash
-
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        id: 'auth'
+        with:
+          workload_identity_provider: 'projects/223122573789/locations/global/workloadIdentityPools/github-pool-lavi/providers/github-lavi'
+          service_account: 'cicd-sa@project-b2133bd0-e0c0-4341-835.iam.gserviceaccount.com'
+      - name: Verify identity
+        run: gcloud auth list 
+        
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v1
+      - name: Verify authentication
+        run: |
+           gcloud auth list
+           gcloud config list
+      
+      - name: Build Docker Image
+        run: |
+          docker build -t us-central1-docker.pkg.dev/project-b2133bd0-e0c0-4341-835/webapp/flask-image-demo:v2 .
+      - name: Set up Docker to use gcloud 
+        run: |
+            gcloud auth configure-docker us-central1-docker.pkg.dev
+      - name: Push Docker Image
+        run: |
+          docker push us-central1-docker.pkg.dev/project-b2133bd0-e0c0-4341-835/webapp/flask-image-demo:v2
 
-    - id: auth
-      uses: google-github-actions/auth@v2.0.0  
-      with:
-        workload_identity_provider: 'projects/223122573789/locations/global/workloadIdentityPools/github-pool-lavi/providers/github-lavi'
-        service_account: 'cicd-sa@project-b2133bd0-e0c0-4341-835.iam.gserviceaccount.com'
+# name: 'Terraform'
+
+# on:
+#   push:
+#     branches: [ "main" ]
+#   pull_request:
+
+# permissions:
+#   contents: read
+#   id-token: 'write'
+
+# jobs:
+#   terraform:
+#     name: 'Terraform'
+#     runs-on: ubuntu-latest
+
+
+#     defaults:
+#       run:
+#         shell: bash
+
+#     steps:
+#     # Checkout the repository to the GitHub Actions runner
+#     - name: Checkout
+#       uses: actions/checkout@v3
+
+#     - id: auth
+#       uses: google-github-actions/auth@v2.0.0  
+#       with:
+#         workload_identity_provider: 'projects/223122573789/locations/global/workloadIdentityPools/github-pool-lavi/providers/github-lavi'
+#         service_account: 'cicd-sa@project-b2133bd0-e0c0-4341-835.iam.gserviceaccount.com'
 
 
           
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+#     - name: Setup Terraform
+#       uses: hashicorp/setup-terraform@v1
+#       with:
+#         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
 
-    - name: Terraform Init
-      run: terraform init
+#     - name: Terraform Init
+#       run: terraform init
 
 
-    # Generates an execution plan for Terraform
-    - name: Terraform Plan
-      run: terraform plan -input=false
+#     # Generates an execution plan for Terraform
+#     - name: Terraform Plan
+#       run: terraform plan -input=false
 
 
-    - name: Terraform Apply
-      run: terraform apply -auto-approve -input=false
+#     - name: Terraform Apply
+#       run: terraform apply -auto-approve -input=false
