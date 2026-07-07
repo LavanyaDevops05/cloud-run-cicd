@@ -1,0 +1,35 @@
+name: Build and push Docker Image to Artifact Registry 
+on:
+  push:
+    branches:
+        - 'main' 
+# env:
+#   IMAGE_NAME: "python_flex"
+#   AR_REPO_LOCATION: "us-central1"
+#   AR_URL: "us-central1-docker.pkg.dev/phrasal-indexer-481012-r0/app-deploy"
+  
+jobs:
+  hello-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        id: 'auth'
+        with:
+          workload_identity_provider: 'projects/223122573789/locations/global/workloadIdentityPools/github-pool-lavi/providers/github-lavi'
+          service_account: 'cicd-sa@project-b2133bd0-e0c0-4341-835.iam.gserviceaccount.com'
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Set up Docker to use gcloud 
+        run: |
+            gcloud auth configure-docker us-central1-docker.pkg.dev
+      - name: Build Docker Image
+        run: |
+          docker build -t us-central1-docker.pkg.dev/project-b2133bd0-e0c0-4341-835/webapp/flask-image-demo:v1 .
+      - name: Push Docker Image
+        run: |
+          docker push us-central1-docker.pkg.dev/project-b2133bd0-e0c0-4341-835/webapp/flask-image-demo:v1
