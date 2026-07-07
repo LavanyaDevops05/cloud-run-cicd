@@ -7,13 +7,13 @@ on:
 #   IMAGE_NAME: "python_flex"
 #   AR_REPO_LOCATION: "us-central1"
 #   AR_URL: "us-central1-docker.pkg.dev/phrasal-indexer-481012-r0/app-deploy"
+permissions:       # 👈 Add this block
+  id-token: write  # Required for OIDC authentication
+  contents: read   # Allows checkout of the repo
   
 jobs:
   hello-job:
     runs-on: ubuntu-latest
-    permissions:       # 👈 Add this block
-      id-token: write  # Required for OIDC authentication
-      contents: read   # Allows checkout of the repo
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
