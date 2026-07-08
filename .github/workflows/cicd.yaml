@@ -22,8 +22,8 @@ jobs:
         uses: google-github-actions/auth@v1
         id: 'auth'
         with:
-          workload_identity_provider: 'projects/223122573789/locations/global/workloadIdentityPools/github-pool-lavi/providers/github-lavi'
-          service_account: 'cicd-sa@project-b2133bd0-e0c0-4341-835.iam.gserviceaccount.com'
+          workload_identity_provider: 'projects/766476792808/locations/global/workloadIdentityPools/lavi-poc-pool/providers/lavi-poc'
+          service_account: 'lavi-poc-sa@gcp-lab-webapp-497715.iam.gserviceaccount.com'
       - name: Verify identity
         run: gcloud auth list 
         
@@ -36,13 +36,13 @@ jobs:
       
       - name: Build Docker Image
         run: |
-          docker build -t us-central1-docker.pkg.dev/project-b2133bd0-e0c0-4341-835/webapp/flask-image-demo:v2 .
+          docker build -t us-central1-docker.pkg.dev/gcp-lab-webapp-497715/webapp/flask-image-demo:v2 .
       - name: Set up Docker to use gcloud 
         run: |
             gcloud auth configure-docker us-central1-docker.pkg.dev
       - name: Push Docker Image
         run: |
-          docker push us-central1-docker.pkg.dev/project-b2133bd0-e0c0-4341-835/webapp/flask-image-demo:v2
+          docker push us-central1-docker.pkg.dev/gcp-lab-webapp-497715/webapp/flask-image-demo:v2
 
 # name: 'Terraform'
 
